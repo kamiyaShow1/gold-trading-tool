@@ -10,7 +10,7 @@ const initialState = {
   entryReason: '',
 }
 
-export default function DemoTradeForm({ onCreated }) {
+export default function DemoTradeForm({ onCreated, suggestedPrice }) {
   const [form, setForm] = useState(initialState)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -78,7 +78,18 @@ export default function DemoTradeForm({ onCreated }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">エントリー価格</label>
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium text-gray-700">エントリー価格</label>
+            {suggestedPrice != null && (
+              <button
+                type="button"
+                onClick={() => update('entryPrice', String(suggestedPrice))}
+                className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
+              >
+                現在値を使用（{suggestedPrice}）
+              </button>
+            )}
+          </div>
           <input
             type="number"
             step="0.01"
