@@ -54,7 +54,7 @@ async function register(req, res) {
   });
 
   const token = issueToken(user);
-  return res.status(201).json({ userId: user.id, token, userProfile: toPublicUser(user) });
+  return res.status(201).json({ userId: user.id, token, username: user.username });
 }
 
 async function login(req, res) {
@@ -70,7 +70,7 @@ async function login(req, res) {
   }
 
   const token = issueToken(user);
-  return res.json({ userId: user.id, token, userProfile: toPublicUser(user) });
+  return res.json({ userId: user.id, token, username: user.username });
 }
 
 async function logout(req, res) {
