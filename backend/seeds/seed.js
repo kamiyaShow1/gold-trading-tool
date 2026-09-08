@@ -284,10 +284,17 @@ function buildQuiz(chapter) {
     ],
   };
 
+  const questions = base[chapter.chapterId].map((q, index) => ({
+    questionId: `${chapter.chapterId}-q${index + 1}`,
+    question: q.question,
+    options: q.options,
+    correctAnswer: q.options[q.correctIndex],
+  }));
+
   return {
     title: `${chapter.title} 確認テスト`,
     description: `${chapter.title}の理解度を確認する5問のテストです。`,
-    questionsJson: { questions: base[chapter.chapterId] },
+    questionsJson: { questions },
     passingScore: 80,
   };
 }
