@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import LearningPage from './pages/LearningPage'
 import QuizPage from './pages/QuizPage'
+import DemoTradePage from './pages/DemoTradePage'
 
 export default function App() {
   return (
@@ -41,6 +42,14 @@ export default function App() {
             element={
               <RequireAuth>
                 <QuizPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/demo-trade"
+            element={
+              <RequireAuth>
+                <DemoTradePage />
               </RequireAuth>
             }
           />

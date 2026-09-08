@@ -28,13 +28,16 @@ function toPublicTrade(trade) {
 }
 
 async function createDemoTrade(req, res) {
-  const { symbol, entryType, entryPrice, entryReason, learningChapter } = req.body || {};
+  const { symbol, entryType, entryPrice, entryReason, learningChapter, lotSize } = req.body || {};
 
   if (!VALID_ENTRY_TYPES.includes(entryType)) {
     return res.status(400).json({ error: 'entryTypeは buy または sell で指定してください' });
   }
   if (typeof entryPrice !== 'number' || !Number.isFinite(entryPrice) || entryPrice <= 0) {
     return res.status(400).json({ error: 'entryPriceは正の数値で指定してください' });
+  }
+  if (lotSize !== undefined && (typeof lotSize !== 'number' || !Number.isFinite(lotSize) || lotSize <= 0)) {
+    return res.status(400).json({ error: 'lotSizeは正の数値で指定してください' });
   }
 
   const trade = await prisma.demoTrade.create({
@@ -45,6 +48,7 @@ async function createDemoTrade(req, res) {
       entryPrice,
       entryReason: entryReason || null,
       learningChapter: learningChapter || null,
+      ...(lotSize !== undefined ? { lotSize } : {}),
     },
   });
 
@@ -108,6 +112,7 @@ async function getDemoTrades(req, res) {
 
   const closedTrades = trades.filter((t) => t.status === 'closed');
   const wins = closedTrades.filter((t) => (t.profitLoss || 0) > 0).length;
+  const losses = closedTrades.length - wins;
   const totalPips = closedTrades.reduce((sum, t) => sum + (t.pips || 0), 0);
   const totalProfitLoss = closedTrades.reduce((sum, t) => sum + (t.profitLoss || 0), 0);
   const winRate = closedTrades.length > 0 ? Math.round((wins / closedTrades.length) * 100) : 0;
@@ -118,6 +123,8 @@ async function getDemoTrades(req, res) {
       totalTrades: trades.length,
       openTrades: trades.filter((t) => t.status === 'open').length,
       closedTrades: closedTrades.length,
+      wins,
+      losses,
       winRate,
       totalPips,
       totalProfitLoss,

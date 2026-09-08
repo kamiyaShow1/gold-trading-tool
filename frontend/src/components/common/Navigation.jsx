@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 const LINKS = [
   { to: '/dashboard', label: 'ホーム' },
   { to: '/learning', label: '学習' },
+  { to: '/demo-trade', label: 'デモトレード' },
 ]
 
 export default function Navigation() {
