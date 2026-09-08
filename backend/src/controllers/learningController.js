@@ -23,6 +23,7 @@ function toChapterDetail(chapter) {
     difficulty: chapter.difficulty,
     estimatedTime: chapter.estimatedTime,
     order: chapter.order,
+    quizId: chapter.quizzes?.[0]?.id ?? null,
   };
 }
 
@@ -43,7 +44,10 @@ async function getChapters(req, res) {
 async function getChapterById(req, res) {
   const { chapterId } = req.params;
 
-  const chapter = await prisma.learningContent.findUnique({ where: { chapterId } });
+  const chapter = await prisma.learningContent.findUnique({
+    where: { chapterId },
+    include: { quizzes: { select: { id: true } } },
+  });
   if (!chapter) {
     return res.status(404).json({ error: '指定された章が見つかりません' });
   }
