@@ -299,6 +299,65 @@ function buildQuiz(chapter) {
   };
 }
 
+// MarketData: 直近5日間 x 7時間足のテストデータ(docs/PHASE2.mdのチャートAPI疎通確認用)
+const MARKET_DATES = ['2026-09-04', '2026-09-05', '2026-09-06', '2026-09-07', '2026-09-08'];
+const TIMEFRAMES = ['1m', '5m', '15m', '30m', '1h', '4h', '1d'];
+
+function randomBetween(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+function buildMarketDataRecord(dateStr, dayIndex, timeframe) {
+  const open = 2520 + (dayIndex * 10 + randomBetween(-5, 5));
+  const high = open + randomBetween(50, 150);
+  const low = open - randomBetween(50, 150);
+  const close = low + randomBetween(0, high - low);
+
+  return {
+    symbol: 'XAUUSD',
+    timeframe,
+    timestamp: new Date(`${dateStr}T00:00:00.000Z`),
+    open,
+    high,
+    low,
+    close,
+    // ema20/75/200はcloseからの簡易オフセットで生成(実際のEMA計算ではないテスト用データ)
+    ema20: close - randomBetween(0, 5),
+    ema75: close - randomBetween(5, 15),
+    ema200: close - randomBetween(15, 30),
+    rsi: randomBetween(30, 70),
+    atr: randomBetween(5, 20),
+    fomc: false,
+    nfp: false,
+    cpi: null,
+    dollarIndex: randomBetween(104.0, 105.0),
+    vix: randomBetween(15, 25),
+  };
+}
+
+async function seedMarketData() {
+  let count = 0;
+  for (let dayIndex = 0; dayIndex < MARKET_DATES.length; dayIndex += 1) {
+    const dateStr = MARKET_DATES[dayIndex];
+    for (const timeframe of TIMEFRAMES) {
+      const record = buildMarketDataRecord(dateStr, dayIndex, timeframe);
+      await prisma.marketData.upsert({
+        where: {
+          symbol_timeframe_timestamp: {
+            symbol: record.symbol,
+            timeframe: record.timeframe,
+            timestamp: record.timestamp,
+          },
+        },
+        update: record,
+        create: record,
+      });
+      count += 1;
+    }
+  }
+  console.log(`[seed] MarketData を ${count} 件投入しました`);
+}
+
 async function main() {
   for (const chapter of chapters) {
     const { chapterId, keyPoints, examples, ...rest } = chapter;
@@ -319,6 +378,8 @@ async function main() {
 
     console.log(`[seed] ${chapterId}: ${chapter.title} を投入しました`);
   }
+
+  await seedMarketData();
 }
 
 main()
