@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const authRoutes = require('./routes/auth');
+const learningRoutes = require('./routes/learning');
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/learning', learningRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -28,17 +28,16 @@ model User {
   currentWinRate  Float   @default(0)
   totalProfitLoss Float   @default(0)
 
-  learningContents LearningContent[]
-  quizzes          Quiz[]
   quizResults      QuizResult[]
+  learningProgress LearningProgress?
 
   @@map("Users")
 }
 
+// 学習コンテンツは全ユーザー共通のカタログ。ユーザーごとの進捗は LearningProgress で管理する
 model LearningContent {
   id        Int    @id @default(autoincrement())
-  userId    Int
-  chapterId String
+  chapterId String @unique
   title     String
 
   // category: 'fx_basics' | 'gold_characteristics' | 'technical_analysis'
@@ -54,16 +53,13 @@ model LearningContent {
   estimatedTime Int?
   order         Int?
 
-  user   User   @relation(fields: [userId], references: [id])
   quizzes Quiz[]
 
-  @@unique([userId, chapterId])
   @@map("LearningContent")
 }
 
 model Quiz {
-  id        Int    @id @default(autoincrement())
-  userId    Int
+  id        Int @id @default(autoincrement())
   contentId Int
 
   title         String
@@ -73,7 +69,6 @@ model Quiz {
 
   createdAt DateTime @default(now())
 
-  user    User            @relation(fields: [userId], references: [id])
   content LearningContent @relation(fields: [contentId], references: [id])
   results QuizResult[]
 
@@ -96,4 +91,20 @@ model QuizResult {
   quiz Quiz @relation(fields: [quizId], references: [id])
 
   @@map("QuizResults")
+}
+
+// ユーザー1人につき1レコード。完了章の一覧・現在章・進捗率をまとめて保持する
+model LearningProgress {
+  id     Int @id @default(autoincrement())
+  userId Int @unique
+
+  completedChapters Json
+  currentChapter    String?
+  progressPercent   Int      @default(0)
+  totalStudyTime    Int      @default(0)
+  lastStudyDate     DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("LearningProgress")
 }
