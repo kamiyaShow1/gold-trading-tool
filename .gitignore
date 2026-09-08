@@ -5,3 +5,8 @@ dist
 build
 .DS_Store
 *.log
+
+# SQLite / Prisma
+*.db
+*.db-journal
+backend/prisma/dev.db*

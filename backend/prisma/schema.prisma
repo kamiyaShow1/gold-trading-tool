@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // プロフィール
+  hfmAccountId  String?
+  // tradingLevel: 'beginner' | 'intermediate' | 'advanced'
+  tradingLevel  String  @default("beginner")
+  targetWinRate Int     @default(70)
+
+  // 統計
+  totalTrades     Int     @default(0)
+  totalWins       Int     @default(0)
+  totalLosses     Int     @default(0)
+  currentWinRate  Float   @default(0)
+  totalProfitLoss Float   @default(0)
+
+  learningContents LearningContent[]
+  quizzes          Quiz[]
+  quizResults      QuizResult[]
+
+  @@map("Users")
+}
+
+model LearningContent {
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  chapterId String
+  title     String
+
+  // category: 'fx_basics' | 'gold_characteristics' | 'technical_analysis'
+  //         | 'time_zones' | 'fundamental_analysis' | 'risk_management'
+  category String
+
+  content   String
+  keyPoints Json?
+  examples  Json?
+
+  // difficulty: 'easy' | 'medium' | 'hard'
+  difficulty    String @default("medium")
+  estimatedTime Int?
+  order         Int?
+
+  user   User   @relation(fields: [userId], references: [id])
+  quizzes Quiz[]
+
+  @@unique([userId, chapterId])
+  @@map("LearningContent")
+}
+
+model Quiz {
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  contentId Int
+
+  title         String
+  description   String?
+  questionsJson Json
+  passingScore  Int     @default(80)
+
+  createdAt DateTime @default(now())
+
+  user    User            @relation(fields: [userId], references: [id])
+  content LearningContent @relation(fields: [contentId], references: [id])
+  results QuizResult[]
+
+  @@map("Quizzes")
+}
+
+model QuizResult {
+  id     Int @id @default(autoincrement())
+  userId Int
+  quizId Int
+
+  score   Int
+  passed  Boolean
+  answers Json?
+  feedback String?
+
+  attemptDate DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  quiz Quiz @relation(fields: [quizId], references: [id])
+
+  @@map("QuizResults")
+}
