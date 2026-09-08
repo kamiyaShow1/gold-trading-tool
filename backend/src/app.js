@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const learningRoutes = require('./routes/learning');
 const quizRoutes = require('./routes/quiz');
 const demoTradeRoutes = require('./routes/demoTrade');
+const marketRoutes = require('./routes/market');
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use('/api/quiz', quizRoutes);
 // '/create'・'/:tradeId/close' は単数形、一覧は複数形のパスのため同じルーターを両方にマウントする
 app.use('/api/demo-trade', demoTradeRoutes);
 app.use('/api/demo-trades', demoTradeRoutes);
+app.use('/api/market', marketRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
