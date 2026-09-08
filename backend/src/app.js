@@ -6,6 +6,7 @@ const { notFound, errorHandler } = require('./middleware/errorHandler');
 const authRoutes = require('./routes/auth');
 const learningRoutes = require('./routes/learning');
 const quizRoutes = require('./routes/quiz');
+const demoTradeRoutes = require('./routes/demoTrade');
 
 const app = express();
 
@@ -58,6 +59,9 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/learning', learningRoutes);
 app.use('/api/quiz', quizRoutes);
+// '/create'・'/:tradeId/close' は単数形、一覧は複数形のパスのため同じルーターを両方にマウントする
+app.use('/api/demo-trade', demoTradeRoutes);
+app.use('/api/demo-trades', demoTradeRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

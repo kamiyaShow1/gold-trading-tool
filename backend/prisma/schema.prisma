@@ -30,6 +30,7 @@ model User {
 
   quizResults      QuizResult[]
   learningProgress LearningProgress?
+  demoTrades       DemoTrade[]
 
   @@map("Users")
 }
@@ -107,4 +108,67 @@ model LearningProgress {
   user User @relation(fields: [userId], references: [id])
 
   @@map("LearningProgress")
+}
+
+model DemoTrade {
+  id     Int @id @default(autoincrement())
+  userId Int
+
+  symbol String @default("XAUUSD")
+
+  entryTime  DateTime @default(now())
+  entryPrice Float
+  // entryType: 'buy' | 'sell'
+  entryType  String
+
+  exitTime  DateTime?
+  exitPrice Float?
+
+  // ロット数。デモ用のデフォルトはマイクロロット
+  lotSize Float @default(0.01)
+
+  pips       Float?
+  profitLoss Float?
+  // status: 'open' | 'closed' | 'cancelled'
+  status String @default("open")
+
+  entryReason     String?
+  exitReason      String?
+  learningChapter String?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("DemoTrades")
+}
+
+// 全ユーザー共通の相場データ(LearningContentと同じ理由でuserIdは持たない)
+model MarketData {
+  id Int @id @default(autoincrement())
+
+  symbol String @default("XAUUSD")
+  // timeframe: '1m' | '5m' | '15m' | '30m' | '1h' | '4h' | '1d'
+  timeframe String
+  timestamp DateTime
+
+  open  Float
+  high  Float
+  low   Float
+  close Float
+
+  ema20  Float?
+  ema75  Float?
+  ema200 Float?
+  rsi    Float?
+  atr    Float?
+
+  fomc        Boolean @default(false)
+  nfp         Boolean @default(false)
+  cpi         Float?
+  dollarIndex Float?
+  vix         Float?
+
+  @@unique([symbol, timeframe, timestamp])
+  @@map("MarketData")
 }
