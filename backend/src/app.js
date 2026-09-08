@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -37,11 +38,22 @@ const apiLimiter = rateLimit({
 });
 app.use('/api', apiLimiter);
 
+// 総当たり攻撃対策のため、認証系はより厳しく制限する
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'リクエストが多すぎます。しばらくしてから再度お試しください' },
+});
+
 app.use(express.json({ limit: '5mb' }));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'gold-trading-tool-backend' });
 });
+
+app.use('/api/auth', authLimiter, authRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
