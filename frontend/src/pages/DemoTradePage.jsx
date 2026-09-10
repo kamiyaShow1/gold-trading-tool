@@ -4,6 +4,7 @@ import DemoTradeForm from '../components/trade/DemoTradeForm'
 import DemoStats from '../components/trade/DemoStats'
 import PositionList from '../components/trade/PositionList'
 import PriceChart from '../components/trade/PriceChart'
+import FundamentalPanel from '../components/market/FundamentalPanel'
 import api from '../services/api'
 
 export default function DemoTradePage() {
@@ -36,7 +37,10 @@ export default function DemoTradePage() {
         <PriceChart timeframe="1h" onLatestPriceChange={setLatestPrice} />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <DemoTradeForm onCreated={load} suggestedPrice={latestPrice} />
+          <div className="space-y-4">
+            <DemoTradeForm onCreated={load} suggestedPrice={latestPrice} />
+            <FundamentalPanel />
+          </div>
           <div className="space-y-4">
             <DemoStats stats={data.stats} />
             <PositionList trades={openTrades} onChanged={load} />
